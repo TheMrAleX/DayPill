@@ -1,11 +1,18 @@
 package app.pastillero.data
 
+import app.pastillero.domain.DoseAction
+import app.pastillero.domain.DoseLog
+import app.pastillero.domain.ReminderPolicy
+import app.pastillero.domain.ReminderSnapshot
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import app.pastillero.domain.DoseGenerator
 import app.pastillero.domain.DoseStatus
 import app.pastillero.domain.DoseTiming
 import app.pastillero.domain.Medication
 import app.pastillero.domain.NextAlarm
 import app.pastillero.domain.NextAlarmCalculator
+import app.pastillero.domain.NextGenerationTime
 import app.pastillero.domain.Schedule
 import java.time.Clock
 import java.time.LocalDate
@@ -15,6 +22,7 @@ class MedicationRepository(
     private val store: MedicationStore,
     private val clock: Clock,
     private val zoneProvider: () -> ZoneId,
+    private val onChanged: suspend () -> Unit = {},
 ) {
     val medications = store.activeMedications
     val schedules = store.activeSchedules
@@ -63,7 +71,7 @@ class MedicationRepository(
         ensureDosesInternal(today)
         expireRemindersInternal()
         medicationId
-    }
+    }.also { changed() }
 
     suspend fun archiveMedication(id: Long) = store.transaction {
         val medication = requireNotNull(store.medications().find { it.id == id })
@@ -71,12 +79,12 @@ class MedicationRepository(
         val pending = store.doses().filter { it.medicationId == id && it.status == DoseStatus.PENDING }
         store.deleteDoses(pending.filter { it.scheduledAt >= clock.millis() }.map { it.id })
         store.updateDoses(pending.filter { it.scheduledAt < clock.millis() }.map { it.copy(notifyAt = null) })
-    }
+    }.also { changed() }
 
     suspend fun ensureDoses(): NextAlarm? = store.transaction {
         ensureDosesInternal(today())
         expireRemindersInternal()
-    }
+    }.also { changed() }
 
     suspend fun nextAlarm(): NextAlarm? = store.transaction { expireRemindersInternal() }
 
@@ -86,7 +94,7 @@ class MedicationRepository(
         store.updateDoses(rebased.zip(rows).filter { (new, old) -> new != old }.map { it.first })
         ensureDosesInternal(today())
         expireRemindersInternal()
-    }
+    }.also { changed() }
 
     suspend fun setTaken(id: Long, taken: Boolean): NextAlarm? = store.transaction {
         val row = requireNotNull(store.doses().find { it.id == id })
@@ -99,6 +107,42 @@ class MedicationRepository(
         }
         store.updateDoses(listOf(updated))
         expireRemindersInternal()
+    }.also { changed() }
+
+    /** OS side effects are serialized by ReminderCoordinator; these methods do not recurse into it. */
+    suspend fun deliverDue(repeatMinutes: Int, post: (DoseLog) -> Unit) = store.transaction {
+        ensureDosesInternal(today())
+        expireRemindersInternal()
+        val active = store.medications().filterNot { it.archived }.map { it.id }.toSet()
+        val now = clock.millis()
+        store.doses().filter {
+            it.medicationId in active && it.status == DoseStatus.PENDING && it.notifyAt?.let { time -> time <= now } == true
+        }.sortedWith(compareBy<DoseLog> { it.notifyAt }.thenBy { it.id }).forEach { dose ->
+            post(dose)
+            store.updateDoses(listOf(ReminderPolicy.afterNotification(dose, now, repeatMinutes)))
+        }
+    }
+
+    suspend fun applyNotificationAction(id: Long, action: DoseAction, repeatMinutes: Int) = store.transaction {
+        val row = store.doses().find { it.id == id } ?: return@transaction
+        val active = store.medications().any { it.id == row.medicationId && !it.archived }
+        if (!active) return@transaction
+        val updated = ReminderPolicy.applyAction(row, action, clock.millis(), repeatMinutes)
+        if (updated != row) store.updateDoses(listOf(updated))
+    }
+
+    suspend fun reminderSnapshot(): ReminderSnapshot = store.transaction {
+        val next = expireRemindersInternal()
+        val active = store.medications().filterNot { it.archived }.map { it.id }.toSet()
+        val generation = NextGenerationTime.find(today(), zoneProvider(), store.medications(), store.schedules(), store.doses())
+        ReminderSnapshot(listOfNotNull(next?.triggerAt, generation).minOrNull(), store.doses().filter {
+            it.status == DoseStatus.PENDING && it.medicationId in active
+        }.map { it.id }.toSet())
+    }
+
+    private suspend fun changed() {
+        // Once committed, finish OS reconciliation even if the editor leaves its composition.
+        withContext(NonCancellable) { onChanged() }
     }
 
     private fun today(): LocalDate = LocalDate.now(clock.withZone(zoneProvider()))

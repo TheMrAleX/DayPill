@@ -1,6 +1,10 @@
 package app.pastillero
 
 import android.os.Bundle
+import android.content.Intent
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import app.pastillero.alarm.NotificationFactory
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +20,19 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private var openTodayRequest by mutableIntStateOf(0)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.action == NotificationFactory.ACTION_OPEN_TODAY) openTodayRequest++
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("open_today_request", openTodayRequest)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onStart() {
         super.onStart()
         val container = (application as PastilleroApp).container
@@ -25,6 +42,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        openTodayRequest = savedInstanceState?.getInt("open_today_request")
+            ?: if (intent.action == NotificationFactory.ACTION_OPEN_TODAY) 1 else 0
         enableEdgeToEdge()
         val container = (application as PastilleroApp).container
         setContent {
@@ -36,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 window.isNavigationBarContrastEnforced = false
             }
-            PastilleroTheme(theme = settings.theme) { PastilleroNavHost(container.medications) }
+            PastilleroTheme(theme = settings.theme) { PastilleroNavHost(container.medications, openTodayRequest) }
         }
     }
 }

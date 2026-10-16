@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 class BackupRepository(
     private val store: MedicationStore,
     private val settings: SettingsRepository,
+    private val onChanged: suspend () -> Unit = {},
 ) {
     suspend fun exportJson(): String = store.transaction {
         BackupCodec.encode(BackupData(1, store.medications(), store.schedules(), store.doses(), settings.settings.first()))
@@ -32,6 +33,7 @@ class BackupRepository(
             }
             throw error
         }
+        withContext(NonCancellable) { onChanged() }
     }
 
     suspend fun exportHistory(zone: ZoneId): String = store.transaction {
