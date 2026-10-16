@@ -148,7 +148,14 @@ def create(name):
     root = wait_label('Name')
     fields = [n for n in root.iter('node') if n.get('class') == 'android.widget.EditText']
     tap_node(fields[0])
-    adb('shell', 'input', 'text', name)
+    # Give Compose and the system IME time to settle between injected keys.
+    # A whole-string `input text` burst can duplicate the initial shifted key.
+    for character in name:
+        adb('shell', 'input', 'text', character)
+        time.sleep(.15)
+    _, root = hierarchy()
+    assert any(n.get('class') == 'android.widget.EditText' and n.get('text') == name
+               for n in root.iter('node')), values(root)
     # Hide IME only when it is actually shown.
     ime = adb('shell', 'dumpsys', 'input_method').decode()
     if 'mInputShown=true' in ime or 'mIsInputViewShown=true' in ime:
@@ -194,7 +201,7 @@ try:
     adb('shell', 'pm', 'clear', PACKAGE)
     adb('shell', 'pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
     adb('shell', 'cmd', 'locale', 'set-app-locales', PACKAGE, '--locales', 'en-US')
-    initial = int(datetime(2026,10,16,7,58,tzinfo=timezone.utc).timestamp()*1000)
+    initial = int(datetime(2026,10,16,7,50,tzinfo=timezone.utc).timestamp()*1000)
     set_time(initial)
     adb('shell', 'am', 'start', '-W', '-n', PACKAGE+'/.MainActivity')
     create('ReminderA')
@@ -202,6 +209,7 @@ try:
     capture('scheduled-medications')
     await_condition('one exact RTC_WAKEUP alarm for simultaneous doses', lambda: len(alarm_dump('scheduled')) == 1)
     assert row('ReminderA')['repeatCount'] == 0 and row('ReminderB')['repeatCount'] == 0
+    set_time(int(datetime(2026,10,16,7,59,tzinfo=timezone.utc).timestamp()*1000))
     # A foreground Settings activity avoids racing a slow launcher/Home transition.
     adb('shell', 'am', 'start', '-W', '-a', 'android.settings.SETTINGS')
     time.sleep(2)
