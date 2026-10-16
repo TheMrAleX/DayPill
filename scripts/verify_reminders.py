@@ -209,6 +209,9 @@ try:
     assert 'Time for your medication' in dump
     adb('shell', 'cmd', 'statusbar', 'expand-notifications')
     capture('real-background-notifications')
+    tap('ReminderA')
+    wait_label('Settings')
+    capture('cold-notification-opens-today')
     before = row('ReminderA')
     notification_action('ReminderA', 'Snooze')
     await_condition('Snooze preserves PENDING and repeat count', lambda: row('ReminderA')['status'] == 'PENDING' and row('ReminderA')['repeatCount'] == 1 and row('ReminderA')['notifyAt'] != before['notifyAt'])

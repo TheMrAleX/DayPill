@@ -24,8 +24,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        handleNavigationIntent(intent)
+    }
+
+    private fun handleNavigationIntent(intent: Intent) {
+        if (intent.action == NotificationFactory.ACTION_OPEN_TODAY) {
+            openTodayRequest++
+            // Consume only this delivered Intent, so rotation does not navigate again.
+            intent.action = Intent.ACTION_MAIN
+        }
         setIntent(intent)
-        if (intent.action == NotificationFactory.ACTION_OPEN_TODAY) openTodayRequest++
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -42,8 +50,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        openTodayRequest = savedInstanceState?.getInt("open_today_request")
-            ?: if (intent.action == NotificationFactory.ACTION_OPEN_TODAY) 1 else 0
+        openTodayRequest = savedInstanceState?.getInt("open_today_request") ?: 0
+        handleNavigationIntent(intent)
         enableEdgeToEdge()
         val container = (application as PastilleroApp).container
         setContent {
