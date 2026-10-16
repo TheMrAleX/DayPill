@@ -110,7 +110,7 @@ fun MedicationEditorScreen(repository: MedicationRepository, medicationId: Long?
                 placeholder = if (doseFocused) ({ Text(stringResource(R.string.dose_placeholder)) }) else null,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences))
             Column {
-                SectionLabel(stringResource(R.string.times))
+                SectionLabel(R.string.times)
                 model.minutes.forEach { minute ->
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.weight(1f).heightIn(min = 56.dp).clickable(enabled = enabled) {
@@ -124,7 +124,7 @@ fun MedicationEditorScreen(repository: MedicationRepository, medicationId: Long?
                 FilledTonalButton(onClick = { originalMinute = null; showTimePicker = true }, enabled = enabled) { Text(stringResource(R.string.add_time)) }
             }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionLabel(stringResource(R.string.days))
+                SectionLabel(R.string.days)
                 val letters = stringArrayResource(R.array.weekday_letters)
                 val fullDays = stringArrayResource(R.array.weekday_names)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -140,7 +140,7 @@ fun MedicationEditorScreen(repository: MedicationRepository, medicationId: Long?
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionLabel(stringResource(R.string.color))
+                SectionLabel(R.string.color)
                 val names = stringArrayResource(R.array.color_names)
                 val outline = MaterialTheme.colorScheme.onSurface
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
