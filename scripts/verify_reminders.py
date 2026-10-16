@@ -98,7 +98,7 @@ def alarm_dump(name):
     data = adb('shell', 'dumpsys', 'alarm').decode()
     (OUT / f'{name}-alarms.txt').write_text(data)
     # Pending alarms have a separate type/whenElapsed line, unlike historical stats.
-    return [l for l in data.splitlines() if 'type=0' in l and 'app.pastillero' in l and 'whenElapsed=' in l]
+    return [l for l in data.splitlines() if re.search(r'RTC_WAKEUP #\d+:.*app\.pastillero', l)]
 
 
 def notification_dump(name):
@@ -189,7 +189,7 @@ try:
     adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
     adb('shell', 'am', 'kill', PACKAGE) # not force-stop: preserve AlarmManager state
     # pidof returns nonzero when absent, so use a shell conditional for this assertion.
-    assert adb('shell', 'sh', '-c', 'pidof app.pastillero || true').strip() == b''
+    assert adb('shell', 'pidof app.pastillero || true').strip() == b''
     await_condition('real AlarmManager delivery restarts background process and posts both doses',
                     lambda: row('ReminderA')['repeatCount'] == 1 and row('ReminderB')['repeatCount'] == 1, seconds=150)
     dump = notification_dump('initial')
