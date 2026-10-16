@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -24,13 +25,13 @@ import app.pastillero.ui.components.currentTimeMillis
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HistoryScreen(repository: MedicationRepository) {
     val doses by repository.doses.collectAsStateWithLifecycle(initialValue = emptyList())
     val today = Instant.ofEpochMilli(currentTimeMillis()).atZone(ZoneId.systemDefault()).toLocalDate()
+    val locale = LocalConfiguration.current.locales[0]
     val days = HistoryStats.days(doses, today)
     val percentage = HistoryStats.sevenDayPercentage(doses, today)
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -62,7 +63,7 @@ fun HistoryScreen(repository: MedicationRepository) {
                         Text(when (day.date) {
                             today -> stringResource(R.string.today)
                             today.minusDays(1) -> stringResource(R.string.yesterday)
-                            else -> day.date.format(DateTimeFormatter.ofPattern("EEE d MMM", Locale.getDefault()))
+                            else -> day.date.format(DateTimeFormatter.ofPattern("EEE d MMM", locale))
                         }, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                         FlowRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             day.points.forEach { point ->

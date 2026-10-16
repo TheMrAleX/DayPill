@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -46,7 +47,6 @@ import app.pastillero.ui.theme.TimeTextStyle
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 
@@ -63,7 +63,7 @@ fun TodayScreen(repository: MedicationRepository, onSettings: () -> Unit, onAdd:
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
     }
-    val locale = Locale.getDefault()
+    val locale = LocalConfiguration.current.locales[0]
     val density = LocalDensity.current
     var headerHeight by remember { mutableIntStateOf(0) }
     BoxWithConstraints(Modifier.fillMaxSize()) {
