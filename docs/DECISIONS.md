@@ -22,3 +22,13 @@
 - H2: CSV usa cabeceras de la sección 8.5, comillas RFC 4180, CRLF, hora de 24 horas, estados persistidos PENDING/TAKEN/SKIPPED y tomada_a con fecha ISO y offset de la zona elegida.
 - H2: el resumen de siete días incluye hoy y seis días anteriores y redondea al entero más próximo; el historial incluye hoy y 29 días anteriores, omitiendo días vacíos y fechas futuras.
 - H2: la apertura prepara las dosis; las llamadas desde alarmas, reinicio y cambios del sistema y la programación Android pertenecen a H5. No se añaden receivers ni pantallas en H2.
+
+- H3: se incorpora la fuente variable Inter del URL de la sección 7.4 y su OFL; se cargan solo los pesos 400 y 600, con variaciones explícitas y letterSpacing=0 en los quince estilos M3.
+- H3: los ocho estilos indicados respetan exactamente la escala; los siete no especificados conservan tamaños/interlineados M3 y usan Regular o SemiBold. TimeTextStyle fija cifras tabulares para las horas de H4.
+- H3: las paletas de respaldo reproducen la sección 7.2; los surfaceContainer conservan los valores M3 por defecto y los colores dinámicos siguen activados. dynamicColor=false permite verificar el respaldo sin añadir un ajuste de usuario.
+- H3: los tokens de forma M3 asignan extraSmall/small=16 dp para campos, medium=24 dp para tarjetas, large=16 dp para FAB y extraLarge=28 dp para diálogos; botones, chips e indicador de navegación conservan su forma pill M3.
+- H3: los tres destinos principales solo muestran título; Hoy permite abrir Ajustes y Medicamentos abrir Nuevo. Editar se registra con medicationId Long, sin datos ni acciones ficticias para hacerlo accesible antes de H4.
+- H3: navegación estándar con launchSingleTop, saveState/restoreState, barra inferior oculta en Nuevo/Editar/Ajustes y atrás predictivo sin interceptarlo. Se usan insets safeDrawing para cámara y barras, sin bloquear orientación.
+- H3: el tema observa los ajustes DataStore con lifecycle; barras transparentes e iconos siguen el tema activo. El splash del sistema usa fondo claro/oscuro y el icono existentes, sin pantalla adicional.
+- H3: Navigation 2.10.2 y Lifecycle 2.11.0 son las últimas versiones estables verificadas en Google Maven el 2026-10-16. Iconos: solo material-icons-core y el vector de cápsula exacto de la sección 11.
+- H3: la verificación visual de CI usa el emulador estable API 37.0, perfil Pixel 7 Pro, 1440x3120 y 560 dpi (aprox. 411x892 dp); captura temas claro/oscuro y fuente al 200% usando adb, sin dependencias nuevas de tests en la app.
