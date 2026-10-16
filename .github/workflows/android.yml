@@ -66,3 +66,24 @@ jobs:
             app/build/reports/tests/testDebugUnitTest/
             app/build/reports/lint-results-debug.*
           if-no-files-found: warn
+      - name: Verify H3 navigation on Android 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install "emulator" "system-images;android-37.0;google_apis;x86_64"
+          sudo chmod 666 /dev/kvm
+          printf 'no\n' | avdmanager create avd --force --name pastillero-ci --package "system-images;android-37.0;google_apis;x86_64" --device "pixel_7_pro"
+          mkdir -p ui-verification
+          "$ANDROID_HOME/emulator/emulator" -avd pastillero-ci -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -memory 3072 > ui-verification/emulator.log 2>&1 &
+          trap 'adb emu kill || true' EXIT
+          timeout 300 adb wait-for-device
+          timeout 300 bash -c 'until [[ "$(adb shell getprop sys.boot_completed | tr -d "\r")" == "1" ]]; do sleep 3; done'
+          adb install -r app/build/outputs/apk/debug/app-debug.apk
+          python scripts/verify_navigation.py
+      - name: Upload H3 emulator screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pastillero-ui-h3
+          path: ui-verification/
+          if-no-files-found: warn

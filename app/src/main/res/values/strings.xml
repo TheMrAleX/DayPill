@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pastillero</string>
+    <string name="today">Hoy</string>
+    <string name="medications">Medicamentos</string>
+    <string name="history">Historial</string>
+    <string name="new_medication">Nuevo</string>
+    <string name="edit_medication">Editar</string>
+    <string name="settings">Ajustes</string>
+    <string name="back">Atrás</string>
+    <string name="add_medication">Añadir medicamento</string>
 </resources>

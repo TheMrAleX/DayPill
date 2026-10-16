@@ -4,7 +4,7 @@ App Android personal para recordar la medicación, registrar tomas y consultar e
 
 ## Estado
 
-H2: base de datos Room, lógica de tomas, ajustes DataStore y exportación/importación JSON/CSV con tests unitarios. La app sigue mostrando una pantalla vacía: el tema y navegación completos, las pantallas y las alarmas se implementan en los siguientes hitos de [AGENTS.md](AGENTS.md).
+H3: tema Material 3 claro/oscuro, fuente Inter y navegación entre Hoy, Medicamentos e Historial, con rutas de Nuevo/Editar/Ajustes. Los destinos aún están vacíos: el contenido y las alarmas se implementan en los siguientes hitos de [AGENTS.md](AGENTS.md). La capa de datos y sus 37 tests pertenecen al H2.
 
 ## Descargar el APK
 
@@ -30,7 +30,7 @@ El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. Para ejecutar las c
 
 ## Capturas
 
-Pendientes hasta implementar las pantallas.
+Actions publica las capturas reales del emulador en el artefacto `pastillero-ui-h3`, en claro/oscuro y con fuente al 200 %. Capturas de las pantallas completas: pendientes de H4.
 
 ## Licencia
 
