@@ -1,0 +1,55 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+      - name: Install Android packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --list > "$RUNNER_TEMP/android-packages.txt"
+          platform=$(awk -F '|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); if ($1 == "platforms;android-37.0") print $1}' "$RUNNER_TEMP/android-packages.txt" | head -n 1)
+          if [[ -z "$platform" ]]; then
+            grep 'android-37' "$RUNNER_TEMP/android-packages.txt" || true
+            platform=$(awk -F '|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); if ($1 == "platforms;android-37") print $1}' "$RUNNER_TEMP/android-packages.txt" | head -n 1)
+          fi
+          if [[ -z "$platform" ]]; then
+            echo "::error::Stable Android API 37 platform is unavailable."
+            exit 1
+          fi
+          echo "Installing $platform"
+          sdkmanager --install "$platform" "build-tools;36.0.0" "platform-tools"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Test, lint and assemble debug APK
+        run: ./gradlew testDebugUnitTest lintDebug assembleDebug --stacktrace
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: pastillero-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
