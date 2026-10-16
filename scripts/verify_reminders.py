@@ -23,9 +23,14 @@ def adb(*args):
 
 
 def hierarchy():
-    adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml')
-    data = adb('exec-out', 'cat', '/sdcard/window.xml')
-    return data, ET.fromstring(data)
+    for _ in range(5):
+        adb('shell', 'rm', '-f', '/sdcard/window.xml')
+        output = adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml')
+        if b'UI hierchary dumped' in output or b'UI hierarchy dumped' in output:
+            data = adb('exec-out', 'cat', '/sdcard/window.xml')
+            return data, ET.fromstring(data)
+        time.sleep(1)
+    raise AssertionError('UI automation did not return a fresh hierarchy')
 
 
 def values(node):
@@ -185,8 +190,19 @@ def wait_boot():
 
 
 try:
-    adb('root')
-    adb('wait-for-device')
+    # adbd may close its connection while restarting as root on a cold boot.
+    # Verify the resulting UID rather than treating that transient close as failure.
+    for attempt in range(3):
+        try:
+            adb('root')
+        except subprocess.CalledProcessError:
+            pass
+        adb('wait-for-device')
+        if adb('shell', 'id', '-u').strip() == b'0':
+            break
+        time.sleep(1)
+    else:
+        raise AssertionError('Disposable emulator must support adb root')
     adb('logcat', '-c')
     adb('shell', 'settings', 'put', 'global', 'auto_time', '0')
     adb('shell', 'settings', 'put', 'global', 'auto_time_zone', '0')
