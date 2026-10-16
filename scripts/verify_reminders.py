@@ -109,22 +109,29 @@ def notification_dump(name):
 
 def notification_action(title, action):
     adb('shell', 'cmd', 'statusbar', 'expand-notifications')
-    root = wait_label(title)
-    # Expand the target notification's smallest container with an expand control.
-    candidates = [n for n in root.iter('node') if title in values(n) and any(x.get('resource-id', '').endswith('/expand_button') for x in n.iter('node'))]
-    if candidates:
-        card = min(candidates, key=lambda n: (bounds(n)[2]-bounds(n)[0])*(bounds(n)[3]-bounds(n)[1]))
-        controls = [n for n in card.iter('node') if n.get('resource-id', '').endswith('/expand_button')]
-        # Tapping a collapsed header expands it; if already expanded, the action is present.
-        if action.casefold() not in {v.casefold() for v in values(card)}:
-            tap_node(controls[0])
-    root = wait_label(action)
-    candidates = [n for n in root.iter('node') if title in values(n) and action.casefold() in {v.casefold() for v in values(n)}]
-    card = min(candidates, key=lambda n: (bounds(n)[2]-bounds(n)[0])*(bounds(n)[3]-bounds(n)[1]))
-    buttons = [n for n in card.iter('node') if n.get('text', '').casefold() == action.casefold()]
-    assert buttons, values(card)
-    tap_node(buttons[0])
-    adb('shell', 'cmd', 'statusbar', 'collapse')
+    wait_label(title)
+    for _ in range(4):
+        _, root = hierarchy()
+        cards = [n for n in root.iter('node') if n.get('resource-id', '').endswith('/expandableNotificationRow') and title in values(n)]
+        assert cards, values(root)
+        card = min(cards, key=lambda n: (bounds(n)[2]-bounds(n)[0])*(bounds(n)[3]-bounds(n)[1]))
+        x1, y1, x2, y2 = bounds(card)
+        buttons = [n for n in card.iter('node') if n.get('text', '').casefold() == action.casefold()
+                   and y1 <= (bounds(n)[1]+bounds(n)[3])//2 < y2]
+        if buttons:
+            capture('action-'+title+'-'+action)
+            tap_node(buttons[0])
+            adb('shell', 'cmd', 'statusbar', 'collapse')
+            return
+        # Android 17 reports a large expand-button container; target its visible glyph.
+        controls = [n for n in card.iter('node') if n.get('resource-id', '').endswith('/expand_button_icon')]
+        if not controls:
+            controls = [n for n in card.iter('node') if n.get('resource-id', '').endswith('/expand_button')]
+        assert controls, values(card)
+        tap_node(controls[0])
+        time.sleep(.5)
+    capture('missing-action-'+title)
+    raise AssertionError(f'Could not expand {title} to find {action}')
 
 
 def create(name):
