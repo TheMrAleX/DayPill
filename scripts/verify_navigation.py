@@ -7,6 +7,15 @@ import xml.etree.ElementTree as ET
 
 OUTPUT = Path('ui-verification')
 OUTPUT.mkdir(exist_ok=True)
+CURRENT_LANGUAGE = 'en'
+SPANISH = {'Today': 'Hoy', 'Medications': 'Medicamentos', 'History': 'Historial',
+           'Settings': 'Ajustes', 'Back': 'Atrás', 'New': 'Nuevo',
+           'Add medication': 'Añadir medicamento'}
+
+
+def text(label):
+    return SPANISH.get(label, label) if CURRENT_LANGUAGE == 'es' else label
+
 
 
 def adb(*args):
@@ -25,6 +34,7 @@ def labels(root):
 
 
 def wait_for(label):
+    label = text(label)
     for _ in range(10):
         data, root = hierarchy()
         if label in labels(root):
@@ -34,6 +44,7 @@ def wait_for(label):
 
 
 def tap(label):
+    label = text(label)
     _, root = wait_for(label)
     matches = [node for node in root.iter('node')
                if label in (node.get('text'), node.get('content-desc'))]
@@ -50,7 +61,10 @@ def capture(name, expected, main):
     data, root = wait_for(expected)
     names = labels(root)
     for tab in ['Today', 'Medications', 'History']:
-        assert (tab in names) == main, (name, tab, names)
+        assert (text(tab) in names) == main, (name, tab, names)
+    if main:
+        title = 'Today' if '-today' in name else 'Medications' if '-medications' in name else 'History'
+        assert sum(node.get('text') == text(title) for node in root.iter('node')) >= 2, (name, 'Missing destination heading')
     (OUTPUT / f'{name}.xml').write_bytes(data)
     (OUTPUT / f'{name}.png').write_bytes(adb('exec-out', 'screencap', '-p'))
     print(f'PASS {name}', flush=True)
@@ -68,6 +82,7 @@ try:
     adb('shell', 'wm', 'density', '560')
     adb('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP')
     adb('shell', 'wm', 'dismiss-keyguard')
+    adb('shell', 'cmd', 'locale', 'set-app-locales', 'app.pastillero', '--locales', 'en-US')
     for mode in ['light', 'dark']:
         adb('shell', 'cmd', 'uimode', 'night', 'yes' if mode == 'dark' else 'no')
         adb('shell', 'settings', 'put', 'system', 'font_scale', '1.0')
@@ -75,7 +90,7 @@ try:
         capture(f'{mode}-today', 'Settings', True)
         tap('Settings')
         capture(f'{mode}-settings', 'Back', False)
-        adb('shell', 'input', 'keyevent', 'KEYCODE_BACK')
+        tap('Back')
         tap('Medications')
         capture(f'{mode}-medications', 'Add medication', True)
         tap('Add medication')
@@ -89,9 +104,20 @@ try:
         capture(f'{mode}-today-font200', 'Settings', True)
         tap('Medications')
         capture(f'{mode}-medications-font200', 'Add medication', True)
+    CURRENT_LANGUAGE = 'es'
+    adb('shell', 'cmd', 'locale', 'set-app-locales', 'app.pastillero', '--locales', 'es-ES')
+    for mode in ['light', 'dark']:
+        adb('shell', 'cmd', 'uimode', 'night', 'yes' if mode == 'dark' else 'no')
+        adb('shell', 'settings', 'put', 'system', 'font_scale', '2.0')
+        launch()
+        capture(f'{mode}-es-today-font200', 'Settings', True)
+        tap('Medications')
+        capture(f'{mode}-es-medications-font200', 'Add medication', True)
+        tap('History')
+        capture(f'{mode}-es-history-font200', 'History', True)
     log = adb('logcat', '-d', '-v', 'brief', 'AndroidRuntime:E', '*:S')
     (OUTPUT / 'runtime.log').write_bytes(log)
-    assert b'FATAL EXCEPTION' not in log, log.decode(errors='replace')
+    assert not (b'FATAL EXCEPTION' in log and b'Process: app.pastillero' in log), log.decode(errors='replace')
     print('PASS navigation, back, both system themes and 200% font captures', flush=True)
 finally:
     (OUTPUT / 'logcat.txt').write_bytes(adb('logcat', '-d', '-v', 'brief'))

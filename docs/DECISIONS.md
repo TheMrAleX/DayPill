@@ -32,3 +32,5 @@
 - H3: el tema observa los ajustes DataStore con lifecycle; barras transparentes e iconos siguen el tema activo. El splash del sistema usa fondo claro/oscuro y el icono existentes, sin pantalla adicional.
 - H3: Navigation 2.10.2 y Lifecycle 2.11.0 son las últimas versiones estables verificadas en Google Maven el 2026-10-16. Iconos: solo material-icons-core y el vector de cápsula exacto de la sección 11.
 - H3: la verificación visual de CI usa el emulador estable API 37.0, perfil Pixel 7 Pro, 1440x3120 y 560 dpi (aprox. 411x892 dp); captura temas claro/oscuro y fuente al 200% usando adb, sin dependencias nuevas de tests en la app.
+- H3: el fondo XML del splash usa system_background_light/dark (públicos desde API 34, el minSdk) para coincidir con Material You durante el arranque.
+- H3: las capturas al 200% incluyen español (Medicamentos, la etiqueta más larga), además del recorrido en inglés; se cambia el idioma solo desde adb en el emulador.
