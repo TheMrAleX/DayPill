@@ -155,9 +155,13 @@ class MedicationRepository(
 
     private suspend fun expireRemindersInternal(): NextAlarm? {
         val doses = store.doses()
-        val result = NextAlarmCalculator.calculate(doses, clock)
+        val active = store.medications().filterNot { it.archived }.map { it.id }.toSet()
+        val result = NextAlarmCalculator.calculate(doses.filter { it.medicationId in active }, clock)
         val expired = result.expiredDoseIds.toSet()
-        store.updateDoses(doses.filter { it.id in expired }.map { it.copy(notifyAt = null) })
+        // Restored backups can contain archived pending rows with stale reminder timestamps.
+        store.updateDoses(doses.filter {
+            it.id in expired || (it.status == DoseStatus.PENDING && it.medicationId !in active && it.notifyAt != null)
+        }.map { it.copy(notifyAt = null) })
         return result.next
     }
 }

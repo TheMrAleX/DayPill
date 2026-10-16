@@ -99,6 +99,19 @@ class ReminderTest {
         assertTrue(row == null || row.notifyAt == null)
     }
 
+    @Test fun `restored archived pending rows cannot create an immediate alarm loop`() = runTest {
+        create()
+        coordinator.onAlarm()
+        // A valid imported graph may still carry old notifyAt values on archived medication.
+        store.putMedication(store.medications().single().copy(archived = true))
+        coordinator.reconcile()
+        assertNull(scheduler.trigger)
+        assertTrue(notifications.visible.isEmpty())
+        assertTrue(store.doses().all { it.notifyAt == null })
+        coordinator.onAlarm()
+        assertEquals(1, notifications.posted.size)
+    }
+
     @Test fun `late notification actions for deleted rows are harmless`() = runTest {
         coordinator.onAction(500, DoseAction.TAKEN)
         coordinator.onAction(500, DoseAction.SNOOZE)
