@@ -4,7 +4,7 @@ App Android personal para recordar la medicación, registrar tomas y consultar e
 
 ## Estado
 
-H4: Hoy, Medicamentos, Nuevo/Editar e Historial conectados a Room, con validación, selección de horas/días/color, marcado de tomas y archivado que conserva el historial. El formulario conserva su borrador al recrearse. Las alarmas y notificaciones reales corresponden al H5; Ajustes y exportar/importar desde la interfaz, al H6. La capa de datos y sus pruebas proceden del H2.
+H5: pantallas conectadas a Room, una alarma exacta pendiente y notificaciones por toma con acciones Tomada/Posponer. Los recordatorios se restauran tras reinicio/actualización y cambios de hora/zona; las pautas semanales continúan aunque no se abra la app. Sin permiso de notificaciones no se muestran avisos. Ajustes y exportar/importar desde la interfaz corresponden al H6.
 
 ## Descargar el APK
 
@@ -30,7 +30,7 @@ El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. Para ejecutar las c
 
 ## Capturas
 
-Actions publica las capturas reales del emulador en el artefacto `pastillero-ui-h4`, en claro/oscuro y con fuente al 200 %. El recorrido también comprueba crear, editar, marcar, reiniciar y archivar conservando historial.
+Actions publica las capturas y comprobaciones de alarmas/notificaciones del emulador en `pastillero-ui-h5`. El recorrido completo de las pantallas (H4, ambos temas/idiomas y fuente al 200 %) permanece en `scripts/verify_screens.py`.
 
 ## Licencia
 

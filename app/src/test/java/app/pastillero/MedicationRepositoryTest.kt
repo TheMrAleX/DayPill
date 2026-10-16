@@ -9,7 +9,7 @@ import org.junit.Test
 
 class MedicationRepositoryTest {
     private val store = MemoryStore()
-    private val repository = MedicationRepository(store, testClock) { ZoneOffset.UTC }
+    private val repository = MedicationRepository(store, testClock, zoneProvider = { ZoneOffset.UTC })
     private suspend fun create() = repository.saveMedication("  Medication  ", "1 tablet", 4, listOf(480, 1200, 480), 127)
 
     @Test fun `save trims name deduplicates hours and generates three days`() = runTest {

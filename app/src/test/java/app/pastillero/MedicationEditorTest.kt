@@ -18,7 +18,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MedicationEditorTest {
     private val store = MemoryStore()
-    private val repository = MedicationRepository(store, testClock) { ZoneOffset.UTC }
+    private val repository = MedicationRepository(store, testClock, zoneProvider = { ZoneOffset.UTC })
     @Before fun setUp() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun tearDown() { Dispatchers.resetMain() }
 

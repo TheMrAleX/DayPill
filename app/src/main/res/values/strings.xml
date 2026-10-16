@@ -68,4 +68,7 @@
         <item>Violeta</item>
         <item>Rosa</item>
     </string-array>
+    <string name="doses_channel">Tomas</string>
+    <string name="medication_time">Hora de tu medicación</string>
+    <string name="snooze">Posponer</string>
 </resources>

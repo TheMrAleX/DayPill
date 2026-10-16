@@ -68,4 +68,7 @@
         <item>Violet</item>
         <item>Pink</item>
     </string-array>
+    <string name="doses_channel">Doses</string>
+    <string name="medication_time">Time for your medication</string>
+    <string name="snooze">Snooze</string>
 </resources>

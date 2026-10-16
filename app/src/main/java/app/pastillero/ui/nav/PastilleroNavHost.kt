@@ -30,6 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
@@ -59,8 +63,18 @@ private enum class TopLevelDestination(val route: String, @param:StringRes val l
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PastilleroNavHost(repository: MedicationRepository) {
+fun PastilleroNavHost(repository: MedicationRepository, openTodayRequest: Int = 0) {
     val navController = rememberNavController()
+    var handledRequest by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(openTodayRequest) {
+        if (openTodayRequest > handledRequest) {
+            navController.navigate(Routes.TODAY) {
+                popUpTo(navController.graph.findStartDestination().id)
+                launchSingleTop = true
+            }
+            handledRequest = openTodayRequest
+        }
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route ?: Routes.TODAY
     val topLevel = TopLevelDestination.entries.any { it.route == route }
