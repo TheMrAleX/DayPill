@@ -4,7 +4,7 @@ App Android personal para recordar la medicación, registrar tomas y consultar e
 
 ## Estado
 
-H1: esqueleto del proyecto y CI. La app muestra una pantalla vacía; medicamentos, historial y recordatorios se implementan en los siguientes hitos de [AGENTS.md](AGENTS.md).
+H2: base de datos Room, lógica de tomas, ajustes DataStore y exportación/importación JSON/CSV con tests unitarios. La app sigue mostrando una pantalla vacía: el tema y navegación completos, las pantallas y las alarmas se implementan en los siguientes hitos de [AGENTS.md](AGENTS.md).
 
 ## Descargar el APK
 

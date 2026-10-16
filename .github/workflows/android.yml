@@ -53,3 +53,14 @@ jobs:
           name: pastillero-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+      - name: Upload database schema and verification reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pastillero-verification
+          path: |
+            app/schemas/**/*.json
+            app/build/test-results/testDebugUnitTest/*.xml
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
