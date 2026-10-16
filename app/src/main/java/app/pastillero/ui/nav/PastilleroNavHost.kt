@@ -45,6 +45,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.pastillero.R
+import app.pastillero.data.MedicationRepository
+import app.pastillero.ui.today.TodayScreen
+import app.pastillero.ui.meds.MedicationsScreen
+import app.pastillero.ui.meds.MedicationEditorScreen
+import app.pastillero.ui.history.HistoryScreen
 
 private enum class TopLevelDestination(val route: String, @param:StringRes val label: Int) {
     TODAY(Routes.TODAY, R.string.today),
@@ -54,20 +59,18 @@ private enum class TopLevelDestination(val route: String, @param:StringRes val l
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PastilleroNavHost() {
+fun PastilleroNavHost(repository: MedicationRepository) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route ?: Routes.TODAY
     val topLevel = TopLevelDestination.entries.any { it.route == route }
     val secondaryTitle = when (route) {
-        Routes.NEW_MEDICATION -> R.string.new_medication
-        Routes.EDIT_MEDICATION -> R.string.edit_medication
         Routes.SETTINGS -> R.string.settings
         else -> null
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
+        contentWindowInsets = if (route == Routes.NEW_MEDICATION || route == Routes.EDIT_MEDICATION) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
         topBar = {
             if (secondaryTitle != null) {
                 TopAppBar(
@@ -117,31 +120,20 @@ fun PastilleroNavHost() {
         NavHost(navController, startDestination = Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
             composable(Routes.TODAY) {
-                EmptyTopLevelScreen(R.string.today) {
-                    IconButton(onClick = { navController.navigate(Routes.SETTINGS) }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings),
-                            modifier = Modifier.size(24.dp))
-                    }
-                }
+                TodayScreen(repository, onSettings = { navController.navigate(Routes.SETTINGS) },
+                    onAdd = { navController.navigate(Routes.NEW_MEDICATION) })
             }
-            composable(Routes.MEDICATIONS) { EmptyTopLevelScreen(R.string.medications) }
-            composable(Routes.HISTORY) { EmptyTopLevelScreen(R.string.history) }
-            composable(Routes.NEW_MEDICATION) { Box(Modifier.fillMaxSize()) }
-            composable(Routes.EDIT_MEDICATION, arguments = listOf(navArgument("medicationId") { type = NavType.LongType })) {
-                Box(Modifier.fillMaxSize())
+            composable(Routes.MEDICATIONS) {
+                MedicationsScreen(repository) { id -> navController.navigate(Routes.editMedication(id)) }
+            }
+            composable(Routes.HISTORY) { HistoryScreen(repository) }
+            composable(Routes.NEW_MEDICATION) {
+                MedicationEditorScreen(repository, null) { navController.navigateUp() }
+            }
+            composable(Routes.EDIT_MEDICATION, arguments = listOf(navArgument("medicationId") { type = NavType.LongType })) { entry ->
+                MedicationEditorScreen(repository, requireNotNull(entry.arguments).getLong("medicationId")) { navController.navigateUp() }
             }
             composable(Routes.SETTINGS) { Box(Modifier.fillMaxSize()) }
-        }
-    }
-}
-
-@Composable
-private fun EmptyTopLevelScreen(@StringRes title: Int, action: @Composable () -> Unit = {}) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 16.dp).heightIn(min = 48.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(title), modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
-            action()
         }
     }
 }

@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 window.isNavigationBarContrastEnforced = false
             }
-            PastilleroTheme(theme = settings.theme) { PastilleroNavHost() }
+            PastilleroTheme(theme = settings.theme) { PastilleroNavHost(container.medications) }
         }
     }
 }

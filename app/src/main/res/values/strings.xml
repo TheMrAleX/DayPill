@@ -9,4 +9,63 @@
     <string name="settings">Ajustes</string>
     <string name="back">Atrás</string>
     <string name="add_medication">Añadir medicamento</string>
+
+    <string name="nothing_today">Nada para hoy</string>
+    <string name="no_medications">Sin medicamentos</string>
+    <string name="no_history">Sin historial</string>
+    <string name="all_done">Todo listo</string>
+    <string name="dose_count">%1$d/%2$d</string>
+    <string name="notifications_disabled">Notificaciones desactivadas</string>
+    <string name="enable_notifications">Activar</string>
+    <string name="mark_pending">Marcar como pendiente</string>
+    <string name="mark_taken">Marcar como tomada</string>
+    <string name="status_taken">Tomada</string>
+    <string name="status_pending">Pendiente</string>
+    <string name="status_skipped">Omitida</string>
+    <string name="status_missed">Perdida</string>
+    <string name="seven_days">7 días</string>
+    <string name="percentage">%1$d %%</string>
+    <string name="no_percentage">—</string>
+    <string name="yesterday">Ayer</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+    <string name="delete_medication">¿Eliminar medicamento?</string>
+    <string name="name">Nombre</string>
+    <string name="dose">Dosis</string>
+    <string name="name_required">Escribe un nombre</string>
+    <string name="dose_placeholder">1 pastilla</string>
+    <string name="times">Horas</string>
+    <string name="add_time">Añadir hora</string>
+    <string name="remove_time">Quitar hora %1$s</string>
+    <string name="days">Días</string>
+    <string name="color">Color</string>
+    <string-array name="weekday_letters">
+        <item>L</item>
+        <item>M</item>
+        <item>X</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </string-array>
+    <string-array name="weekday_names">
+        <item>lunes</item>
+        <item>martes</item>
+        <item>miércoles</item>
+        <item>jueves</item>
+        <item>viernes</item>
+        <item>sábado</item>
+        <item>domingo</item>
+    </string-array>
+    <string-array name="color_names">
+        <item>Rojo</item>
+        <item>Naranja</item>
+        <item>Ámbar</item>
+        <item>Verde</item>
+        <item>Turquesa</item>
+        <item>Azul</item>
+        <item>Violeta</item>
+        <item>Rosa</item>
+    </string-array>
 </resources>

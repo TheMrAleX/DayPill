@@ -20,6 +20,14 @@ class MedicationRepository(
     val schedules = store.activeSchedules
     val doses = store.allDoses
 
+    suspend fun hasAnyMedication(): Boolean = store.transaction { store.medications().isNotEmpty() }
+
+    suspend fun findMedication(id: Long): Pair<Medication, List<Schedule>>? = store.transaction {
+        store.medications().find { it.id == id && !it.archived }?.let { medication ->
+            medication to store.schedules().filter { it.medicationId == id && it.daysMask != 0 }
+        }
+    }
+
     suspend fun saveMedication(
         name: String,
         dose: String,

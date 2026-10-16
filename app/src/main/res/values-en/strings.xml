@@ -9,4 +9,63 @@
     <string name="settings">Settings</string>
     <string name="back">Back</string>
     <string name="add_medication">Add medication</string>
+
+    <string name="nothing_today">Nothing for today</string>
+    <string name="no_medications">No medications</string>
+    <string name="no_history">No history</string>
+    <string name="all_done">All done</string>
+    <string name="dose_count">%1$d/%2$d</string>
+    <string name="notifications_disabled">Notifications disabled</string>
+    <string name="enable_notifications">Enable</string>
+    <string name="mark_pending">Mark as pending</string>
+    <string name="mark_taken">Mark as taken</string>
+    <string name="status_taken">Taken</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="status_missed">Missed</string>
+    <string name="seven_days">7 days</string>
+    <string name="percentage">%1$d %%</string>
+    <string name="no_percentage">—</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="delete_medication">Delete medication?</string>
+    <string name="name">Name</string>
+    <string name="dose">Dose</string>
+    <string name="name_required">Enter a name</string>
+    <string name="dose_placeholder">1 tablet</string>
+    <string name="times">Times</string>
+    <string name="add_time">Add time</string>
+    <string name="remove_time">Remove time %1$s</string>
+    <string name="days">Days</string>
+    <string name="color">Color</string>
+    <string-array name="weekday_letters">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+    <string-array name="weekday_names">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string-array name="color_names">
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Amber</item>
+        <item>Green</item>
+        <item>Turquoise</item>
+        <item>Blue</item>
+        <item>Violet</item>
+        <item>Pink</item>
+    </string-array>
 </resources>
