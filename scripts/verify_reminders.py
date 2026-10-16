@@ -252,7 +252,15 @@ try:
     # A real OS restart exercises BOOT_COMPLETED rather than an exported test hook.
     adb('reboot')
     wait_boot()
-    await_condition('BOOT_COMPLETED restores a single alarm without opening the app', lambda: len(alarm_dump('boot')) == 1)
+    adb('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP')
+    adb('shell', 'wm', 'dismiss-keyguard')
+    try:
+        # sys.boot_completed precedes completion of the OS broadcast queue on a cold
+        # emulator. Keep the app closed and allow the real broadcast to finish.
+        await_condition('BOOT_COMPLETED restores a single alarm without opening the app', lambda: len(alarm_dump('boot')) == 1, seconds=120)
+    finally:
+        for service in ['activity broadcasts', 'package '+PACKAGE, 'usagestats', 'user']:
+            (OUT / ('boot-'+service.replace(' ', '-')+'.txt')).write_bytes(adb('shell', 'dumpsys', service))
     assert row('ReminderB') == taken
     adb('install', '-r', 'app/build/outputs/apk/debug/app-debug.apk')
     await_condition('MY_PACKAGE_REPLACED restores a single alarm', lambda: len(alarm_dump('replaced')) == 1)
