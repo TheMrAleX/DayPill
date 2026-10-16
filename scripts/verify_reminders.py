@@ -97,7 +97,7 @@ def await_condition(description, predicate, seconds=15):
 def alarm_dump(name):
     data = adb('shell', 'dumpsys', 'alarm').decode()
     (OUT / f'{name}-alarms.txt').write_text(data)
-    # Pending alarms have a separate type/whenElapsed line, unlike historical stats.
+    # Pending alarm headers are distinct from historical delivery statistics.
     return [l for l in data.splitlines() if re.search(r'RTC_WAKEUP #\d+:.*app\.pastillero', l)]
 
 
@@ -186,10 +186,15 @@ try:
     create('ReminderB')
     capture('scheduled-medications')
     await_condition('one exact RTC_WAKEUP alarm for simultaneous doses', lambda: len(alarm_dump('scheduled')) == 1)
-    adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
-    adb('shell', 'am', 'kill', PACKAGE) # not force-stop: preserve AlarmManager state
-    # pidof returns nonzero when absent, so use a shell conditional for this assertion.
-    assert adb('shell', 'pidof app.pastillero || true').strip() == b''
+    assert row('ReminderA')['repeatCount'] == 0 and row('ReminderB')['repeatCount'] == 0
+    # A foreground Settings activity avoids racing a slow launcher/Home transition.
+    adb('shell', 'am', 'start', '-W', '-a', 'android.settings.SETTINGS')
+    time.sleep(2)
+    adb('shell', 'am', 'kill', PACKAGE) # never force-stop: retain AlarmManager state
+    def kill_background_process():
+        adb('shell', 'am', 'kill', PACKAGE)
+        return adb('shell', 'pidof app.pastillero || true').strip() == b''
+    await_condition('background process exited before alarm', kill_background_process)
     await_condition('real AlarmManager delivery restarts background process and posts both doses',
                     lambda: row('ReminderA')['repeatCount'] == 1 and row('ReminderB')['repeatCount'] == 1, seconds=150)
     dump = notification_dump('initial')

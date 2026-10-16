@@ -1,5 +1,6 @@
 package app.pastillero.alarm
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -9,6 +10,9 @@ import android.util.Log
 class AlarmScheduler(private val context: Context) : ReminderScheduler {
     private val manager = context.getSystemService(AlarmManager::class.java)
 
+    // Lint's legacy check only names SCHEDULE_EXACT_ALARM; USE_EXACT_ALARM is declared
+    // in the manifest and canScheduleExactAlarms() verifies the installed capability.
+    @SuppressLint("MissingPermission")
     override fun schedule(triggerAt: Long?) {
         val intent = Intent(context, DoseAlarmReceiver::class.java).setAction(ACTION_ALARM)
         if (triggerAt == null) {

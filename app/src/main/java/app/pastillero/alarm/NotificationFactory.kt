@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
-import android.net.Uri
+import androidx.core.net.toUri
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -66,7 +66,7 @@ class NotificationFactory(private val context: Context) : ReminderNotifications 
 
     private fun actionIntent(id: Long, action: DoseAction): PendingIntent = PendingIntent.getBroadcast(context, 0,
         Intent(context, DoseActionReceiver::class.java).setAction(action.name)
-            .setData(Uri.parse("pastillero://dose/$id/${action.name}"))
+            .setData("pastillero://dose/$id/${action.name}".toUri())
             .putExtra(EXTRA_DOSE_ID, id),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
