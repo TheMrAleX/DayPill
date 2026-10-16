@@ -35,3 +35,10 @@
 - H3: el fondo XML del splash usa system_background_light/dark (públicos desde API 34, el minSdk) para coincidir con Material You durante el arranque.
 - H3: las capturas al 200% incluyen español (Medicamentos, la etiqueta más larga), además del recorrido en inglés; se cambia el idioma solo desde adb en el emulador.
 - H3: la revisión de capturas detectó que el mínimo de altura impuesto por NavHost centraba los títulos; un Box raíz relaja esa restricción y conserva el margen superior de 16 dp. CI verifica ahora también la posición superior del título.
+
+- H4: las pantallas observan Room con lifecycle; el formulario usa ViewModel manual y SavedStateHandle con valores primitivos para conservar borradores al recrearse el proceso o girar la pantalla.
+- H4: las horas se muestran HH:mm con cifras tabulares; el selector Material 3 respeta is24Hour del sistema. Una hora nueva se confirma desde 08:00 en el diálogo antes de incorporarse, evitando duplicados temporales; cancelar no cambia el formulario.
+- H4: la primera solicitud POST_NOTIFICATIONS se determina por la existencia de cualquier medicamento, incluso archivado, sin añadir preferencias ajenas a la especificación; se solicita tras guardar y antes de volver atrás.
+- H4: las filas usan alturas mínimas y crecen con la fuente; los puntos del historial pasan a otra línea cuando no caben. Los círculos de días (44 dp) y colores (36 dp) mantienen las medidas visuales y usan la ampliación automática de destino táctil de Compose hasta 48 dp.
+- H4: el repositorio regenera dosis y calcula el próximo aviso tras guardar, archivar o marcar; la programación AlarmManager y los receivers pertenecen al H5 y no se simulan en este hito. Ajustes conserva la ruta vacía de H3 hasta H6.
+- H4: la comprobación del emulador introduce datos solo mediante la interfaz y los borra al terminar; la app publicada no contiene datos de ejemplo ni accesos de prueba.
