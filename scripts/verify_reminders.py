@@ -59,6 +59,7 @@ def tap(label):
 
 
 def capture(name):
+    time.sleep(1.2)
     data, _ = hierarchy()
     (OUT / f'{name}.xml').write_bytes(data)
     (OUT / f'{name}.png').write_bytes(adb('exec-out', 'screencap', '-p'))
@@ -110,7 +111,7 @@ def notification_dump(name):
 def notification_action(title, action):
     adb('shell', 'cmd', 'statusbar', 'expand-notifications')
     wait_label(title)
-    for _ in range(4):
+    for _ in range(6):
         _, root = hierarchy()
         cards = [n for n in root.iter('node') if n.get('resource-id', '').endswith('/expandableNotificationRow') and title in values(n)]
         assert cards, values(root)
@@ -127,6 +128,13 @@ def notification_action(title, action):
         controls = [n for n in card.iter('node') if n.get('resource-id', '').endswith('/expand_button_icon')]
         if not controls:
             controls = [n for n in card.iter('node') if n.get('resource-id', '').endswith('/expand_button')]
+        if not controls:
+            # A child in an automatic group has no control until its parent expands.
+            ancestors = sorted(cards, key=lambda n: (bounds(n)[2]-bounds(n)[0])*(bounds(n)[3]-bounds(n)[1]))
+            for ancestor in ancestors:
+                controls = [n for n in ancestor.iter('node') if n.get('resource-id', '').endswith('/expand_button_icon')]
+                if controls:
+                    break
         assert controls, values(card)
         tap_node(controls[0])
         time.sleep(.5)
