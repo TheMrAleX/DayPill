@@ -47,9 +47,22 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Test, lint and assemble debug APK
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug --stacktrace
+      - name: Verify committed Room schema
+        run: git diff --exit-code -- app/schemas
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:
           name: pastillero-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+      - name: Upload database schema and verification reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pastillero-verification
+          path: |
+            app/schemas/**/*.json
+            app/build/test-results/testDebugUnitTest/*.xml
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
