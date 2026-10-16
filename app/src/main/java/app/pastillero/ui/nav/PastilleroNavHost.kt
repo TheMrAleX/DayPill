@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -96,7 +97,7 @@ fun PastilleroNavHost() {
                                 }
                             },
                             icon = { DestinationIcon(destination, label) },
-                            label = { Text(label, style = MaterialTheme.typography.labelMedium) },
+                            label = { Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center) },
                             alwaysShowLabel = true,
                         )
                     }
@@ -136,10 +137,12 @@ fun PastilleroNavHost() {
 
 @Composable
 private fun EmptyTopLevelScreen(@StringRes title: Int, action: @Composable () -> Unit = {}) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 16.dp).heightIn(min = 48.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Text(stringResource(title), modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
-        action()
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 16.dp).heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(title), modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
+            action()
+        }
     }
 }
 

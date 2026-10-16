@@ -34,3 +34,4 @@
 - H3: la verificación visual de CI usa el emulador estable API 37.0, perfil Pixel 7 Pro, 1440x3120 y 560 dpi (aprox. 411x892 dp); captura temas claro/oscuro y fuente al 200% usando adb, sin dependencias nuevas de tests en la app.
 - H3: el fondo XML del splash usa system_background_light/dark (públicos desde API 34, el minSdk) para coincidir con Material You durante el arranque.
 - H3: las capturas al 200% incluyen español (Medicamentos, la etiqueta más larga), además del recorrido en inglés; se cambia el idioma solo desde adb en el emulador.
+- H3: la revisión de capturas detectó que el mínimo de altura impuesto por NavHost centraba los títulos; un Box raíz relaja esa restricción y conserva el margen superior de 16 dp. CI verifica ahora también la posición superior del título.

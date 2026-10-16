@@ -64,7 +64,10 @@ def capture(name, expected, main):
         assert (text(tab) in names) == main, (name, tab, names)
     if main:
         title = 'Today' if '-today' in name else 'Medications' if '-medications' in name else 'History'
-        assert sum(node.get('text') == text(title) for node in root.iter('node')) >= 2, (name, 'Missing destination heading')
+        headings = [node for node in root.iter('node') if node.get('text') == text(title)]
+        assert len(headings) >= 2, (name, 'Missing destination heading')
+        top_positions = [int(re.findall(r'\d+', node.get('bounds'))[1]) for node in headings]
+        assert min(top_positions) < 3120 // 4, (name, 'Heading must remain near the top')
     (OUTPUT / f'{name}.xml').write_bytes(data)
     (OUTPUT / f'{name}.png').write_bytes(adb('exec-out', 'screencap', '-p'))
     print(f'PASS {name}', flush=True)
