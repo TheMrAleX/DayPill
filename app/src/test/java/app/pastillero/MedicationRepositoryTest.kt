@@ -32,7 +32,8 @@ class MedicationRepositoryTest {
         assertEquals(first.nameSnapshot, store.doses().first { it.id == first.id }.nameSnapshot)
         assertEquals(DoseStatus.TAKEN, store.doses().first { it.id == first.id }.status)
         assertEquals(tomorrow.copy(status = DoseStatus.SKIPPED, notifyAt = null), store.doses().first { it.id == tomorrow.id })
-        assertEquals(past, store.doses().first { it.id == past.id })
+        // The expired reminder is silenced; all historical fields remain unchanged.
+        assertEquals(past.copy(notifyAt = null), store.doses().first { it.id == past.id })
         assertEquals(3, store.doses().count { it.nameSnapshot == "New name" })
         assertEquals(0, store.schedules().first { it.id == first.scheduleId }.daysMask)
         assertTrue(store.doses().all { row -> store.schedules().any { it.id == row.scheduleId } })

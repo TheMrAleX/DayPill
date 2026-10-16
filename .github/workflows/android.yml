@@ -47,6 +47,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Test, lint and assemble debug APK
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug --stacktrace
+      - name: Verify committed Room schema
+        run: git diff --exit-code -- app/schemas
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:

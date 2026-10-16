@@ -72,4 +72,3 @@ data class DoseLogEntity(
 
 fun DoseLogEntity.toModel() = DoseLog(id, medicationId, scheduleId, nameSnapshot, doseSnapshot, colorIndexSnapshot, localDate, minuteOfDay, scheduledAt, status, takenAt, notifyAt, repeatCount)
 fun DoseLog.toEntity() = DoseLogEntity(id, medicationId, scheduleId, nameSnapshot, doseSnapshot, colorIndexSnapshot, localDate, minuteOfDay, scheduledAt, status, takenAt, notifyAt, repeatCount)
-
